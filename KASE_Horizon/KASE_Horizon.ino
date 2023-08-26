@@ -1,12 +1,19 @@
 /*
-The following program has been created by Kartik Jassal and Arav Patel. The program 
+The following program has been created by Kartik Jassal and Arav Patel. The program uses methods from the Servo, ServoEasing, and AccelStepper libraries along
+with Ackermann steering geometry to make the Horizon rover move smoothly. It has a camera on board which is moved by a servo and a stepper motor to tilt and 
+pan the camera respectively. 
+For this project, an Arduino Mega board has to be used as it has a lot of pins, which are required for this project. The electronic parts that have been used are
+listed below:-
+  - Arduino Mega 2560 Rev3
+  - 6 DC 12V motors operating at 10-20 RPM
+  - DC Motor Driver
+  - 5 high torque Servos operating at 4-6V
+  - Stepper motor
+  - Stepper motor driver
+  - Battery
+  - 3 Joysticks
+NOTE:- The joystick's value has a range of 0-1023. In it's normal position, the value it outputs is of 508.
 */
-
-
-
-
-
-
 
 
 //Initialize the libraries 
@@ -44,8 +51,8 @@ ServoEasing servoCamTilt;
 AccelStepper camPanStepper(1, 46, 45);
 
 // Analog input pins for joysticks
-int forwardBackwardJoystickPin = A0;
-int rightLeftJoystickPin = A1;
+int forwardBackwardJoystickPin = A0; // x axis of the joystick
+int rightLeftJoystickPin = A1; // y axis of the joystick
 
 //Same joystick is being used for the pan and tilt function of the camera
 int camTiltJoystickPin = A2; // y axis of the same joystick
@@ -72,15 +79,15 @@ camPanStepper.setMaxSpeed(1000);
 int camTilt = 90;
 int camPan = 0;
 
-
-
+// Initialize variables for the calculation of Ackermann steering
 float speed1, speed2, speed3 = 0;
 float speed1PWM, speed2PWM, speed3PWM = 0;
 float thetaInnerFront, thetaInnerBack, thetaOuterFront, thetaOuterBack = 0;
 
 // Wheelbase and track width dimensions for Ackermann steering
-float wheelbase = .0;  // Example value in arbitrary units
-float trackWidth = 8.0;  // Example value in arbitrary units
+float wheelbase = 60.0;  // distance between the front and back of the rover (in cm.)
+float trackWidth = 45.0;  // distance between the left and right side of the rover (in cm.)
+
 
 void setup() {
   // Attach servo objects to pins
@@ -96,14 +103,13 @@ void setup() {
   rearLeftServo.write(90);
   rearRightServo.write(90);
   servoCamTilt.write(90);
-
-
+  
+// Initialize the speed of the servos
   frontLeftServo.setSpeed(550);
   frontRightServo.setSpeed(550);
   rearLeftServo.setSpeed(550);
   rearRightServo.setSpeed(550);
   servoCamTilt.setSpeed(200);
-
 
   // Set motor pins as output
   digitalWrite(motor1_IN1, LOW);   // PWM value
